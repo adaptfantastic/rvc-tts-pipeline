@@ -1,3 +1,11 @@
+## Forked Project
+
+This repository is a fork of the original project by Jarod Mica, with minor modifications.
+
+Licensed under the MIT License. Full credit goes to the original creator(s).
+
+This fork exists solely for use with a Chat Assistant.
+
 # RVC-TTS-Pipeline
 Pipeline for TTS to RVC.  This seems to produce the best sounding TTS with the closest representation to the original speaker's voice that one may have trained on.  This works by passing in an audio file generated from some type of TTS (tortoise, vits, etc.) and then converting it using the trained weights from an RVC model.  
 
@@ -47,3 +55,4 @@ Currently, the github packages ONLY work if you install them in editable mode.  
 
 ## Acknowledgements
 Huge thanks to the RVC creators as none of this would be possible without them.  This takes and uses a lot of their code in order to make this possible.
+

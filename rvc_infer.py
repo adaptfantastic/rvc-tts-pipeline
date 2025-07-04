@@ -9,6 +9,7 @@ import numpy as np
 import yaml
 import pkg_resources
 import logging
+import warnings
 
 from multiprocessing import cpu_count
 from vc_infer_pipeline import VC
@@ -18,6 +19,15 @@ from lib.audio import load_audio
 from fairseq import checkpoint_utils
 from scipy.io import wavfile
 
+from fairseq.data.dictionary import Dictionary
+
+from scipy.io import wavfile
+
+
+torch.serialization.add_safe_globals([Dictionary])
+
+
+warnings.filterwarnings("ignore")
 
 class Config:
     def __init__(self,device,is_half):
@@ -244,20 +254,21 @@ def load_config():
     return rvc_conf
 
 def rvc_convert(model_path,
-            f0_up_key=0,
-            input_path=None, 
-            output_dir_path=None,
-            _is_half="False",
-            f0method="rmvpe",
-            file_index="",
-            file_index2="",
-            index_rate=1,
-            filter_radius=3,
-            resample_sr=0,
-            rms_mix_rate=0.5,
-            protect=0.33,
-            verbose=False
-          ):  
+                f0_up_key=0,
+                input_path=None, 
+                output_path=None,
+                output_dir_path=None, 
+                _is_half="False",
+                f0method="rmvpe",
+                file_index="",
+                file_index2="",
+                index_rate=1,
+                filter_radius=3,
+                resample_sr=0,
+                rms_mix_rate=0.5,
+                protect=0.33,
+                verbose=False
+            ):  
     '''
     Function to call for the rvc voice conversion.  All parameters are the same present in that of the webui
 
@@ -295,18 +306,30 @@ def rvc_convert(model_path,
 
     is_half = _is_half
 
-    if output_dir_path == None:
-        output_dir_path = "output"
-        output_file_name = "out.wav"
-        output_dir = os.getcwd()
-        output_file_path = os.path.join(output_dir,output_dir_path, output_file_name)
-    else:
-        # Mainly for Jarod's Vivy project, specify entire path + wav name
-        output_file_path = output_dir_path
-        pass
 
-    create_directory(output_dir_path)
-    output_dir = get_path(output_dir_path)
+    if output_dir_path is None:
+
+        final_output_directory = os.path.join(os.getcwd(), "output")
+        output_file_name = "out.wav"
+    else:
+
+        final_output_directory = output_dir_path
+ 
+        if input_path:
+            base_name = os.path.basename(input_path)
+            output_file_name = os.path.splitext(base_name)[0] + "_converted.wav"
+        else:
+            output_file_name = "converted_audio.wav" 
+
+    if output_path:
+        base_name = os.path.basename(output_path)
+        output_file_name = os.path.splitext(base_name)[0] + ".wav"
+
+    create_directory(final_output_directory) 
+
+
+    output_file_path = os.path.join(final_output_directory, output_file_name)
+
 
     if(is_half.lower() == 'true'):
         is_half = True
@@ -327,7 +350,6 @@ def rvc_convert(model_path,
     return output_file_path
 
 def main():
-    # Need to comment out yaml setting for input audio
     rvc_convert(model_path="models\\ado.pth", input_path="delilah.wav")
 
 if __name__ == "__main__":
